@@ -60,6 +60,7 @@ A feedback collection form for SoilGuard products with backend email integration
   - `role`, `product`, `fromDate`, `toDate`
 - `GET /api/sheetdb-data` - Retrieve feedback data from SheetDB (requires Bearer JWT)
 - `GET /api/sheet-feedback` - Retrieve feedback data directly from Google Sheets (requires Bearer JWT)
+- `GET /api/apps-script-feedback` - Retrieve feedback data via Google Apps Script (requires Bearer JWT)
   - `role`, `product`, `fromDate`, `toDate` (ISO timestamp)
 - `GET /api/health` - Health check
 

@@ -346,38 +346,19 @@ app.get('/api/sheetdb-data', authenticate, async (req, res) => {
   }
 });
 
-// Get feedback from Google Sheets
-app.get('/api/sheet-feedback', authenticate, async (req, res) => {
+// Get feedback from Google Apps Script
+app.get('/api/apps-script-feedback', authenticate, async (req, res) => {
   try {
-    if (!sheets) {
-      return res.status(500).json({ success: false, message: 'Google Sheets not configured' });
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbwXPXclkDKp1A4cE5Mcd9tL2ygbVy6t9SMvFv-ggZYRbH3oLQa6vbE458CUSholFm0txw/exec';
+    const response = await fetch(`${scriptUrl}?action=getData`);
+    if (!response.ok) {
+      throw new Error(`Apps Script error: ${response.status}`);
     }
-
-    const range = 'Sheet1!A:K'; // Columns A to K for the 11 fields
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range,
-    });
-
-    const rows = response.data.values;
-    if (!rows || rows.length === 0) {
-      return res.json({ success: true, data: [] });
-    }
-
-    // Assuming first row is headers
-    const headers = rows[0];
-    const data = rows.slice(1).map(row => {
-      const obj = {};
-      headers.forEach((header, index) => {
-        obj[header.toLowerCase()] = row[index] || '';
-      });
-      return obj;
-    });
-
+    const data = await response.json();
     res.json({ success: true, data });
   } catch (error) {
-    console.error('Google Sheets fetch error:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch from Google Sheets' });
+    console.error('Apps Script fetch error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch from Apps Script' });
   }
 });
 
