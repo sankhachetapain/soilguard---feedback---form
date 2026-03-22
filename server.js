@@ -6,10 +6,24 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { google } = require('googleapis');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'soilguard-default-secret';
+
+// Google Sheets setup
+const SPREADSHEET_ID = process.env.GOOGLE_SHEETS_SPREADSHEET_ID;
+let sheets;
+try {
+  const auth = new google.auth.GoogleAuth({
+    keyFile: path.join(__dirname, 'service-account-key.json'),
+    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+  });
+  sheets = google.sheets({ version: 'v4', auth });
+} catch (error) {
+  console.warn('Google Sheets auth failed, functionality will be limited:', error.message);
+}
 
 // SQLite database
 const DB_FILE = path.join(__dirname, 'soilguard_feedback.db');
@@ -329,6 +343,41 @@ app.get('/api/sheetdb-data', authenticate, async (req, res) => {
   } catch (error) {
     console.error('SheetDB fetch error:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch from SheetDB' });
+  }
+});
+
+// Get feedback from Google Sheets
+app.get('/api/sheet-feedback', authenticate, async (req, res) => {
+  try {
+    if (!sheets) {
+      return res.status(500).json({ success: false, message: 'Google Sheets not configured' });
+    }
+
+    const range = 'Sheet1!A:K'; // Columns A to K for the 11 fields
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range,
+    });
+
+    const rows = response.data.values;
+    if (!rows || rows.length === 0) {
+      return res.json({ success: true, data: [] });
+    }
+
+    // Assuming first row is headers
+    const headers = rows[0];
+    const data = rows.slice(1).map(row => {
+      const obj = {};
+      headers.forEach((header, index) => {
+        obj[header.toLowerCase()] = row[index] || '';
+      });
+      return obj;
+    });
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('Google Sheets fetch error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch from Google Sheets' });
   }
 });
 

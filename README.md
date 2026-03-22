@@ -19,13 +19,22 @@ A feedback collection form for SoilGuard products with backend email integration
      GMAIL_APP_PASSWORD=your_generated_app_password
      ```
 
-3. **Run the backend server:**
+3. **Set up Google Sheets API (for reading feedback data):**
+   - Create a Google Cloud project: https://console.cloud.google.com/
+   - Enable the Google Sheets API
+   - Create a service account: https://console.cloud.google.com/iam-admin/serviceaccounts
+   - Generate a JSON key for the service account and download it
+   - Rename the downloaded file to `service-account-key.json` and place it in the project root
+   - Share the Google Sheet (https://docs.google.com/spreadsheets/d/1FQwb3NNwOKc-2zF2GCFDhXn-obWp4YrTlAT5ehJA80U/edit) with the service account email (found in the JSON key file)
+   - Ensure the sheet has headers in row 1: name, role, location, product, kitease, accuracy, rating, satisfaction, issue, suggestion, feedback
+
+4. **Run the backend server:**
    ```bash
    npm start
    ```
    The server will run on http://localhost:5000
 
-4. **Open the feedback form:**
+5. **Open the feedback form:**
    - Open `index.html` in your browser
    - The form will automatically send feedback emails to soilguard8@gmail.com
 
@@ -48,6 +57,9 @@ A feedback collection form for SoilGuard products with backend email integration
 - `POST /api/feedback` - Submit feedback (sends email + stores in SQLite) Immutable. Optional auth bearer token attaches `userId`.
 - `GET /api/feedbacks` - Retrieve all submitted feedback entries (requires Bearer JWT) with pagination + filters:
   - `page`, `limit` (default 20, max 100)
+  - `role`, `product`, `fromDate`, `toDate`
+- `GET /api/sheetdb-data` - Retrieve feedback data from SheetDB (requires Bearer JWT)
+- `GET /api/sheet-feedback` - Retrieve feedback data directly from Google Sheets (requires Bearer JWT)
   - `role`, `product`, `fromDate`, `toDate` (ISO timestamp)
 - `GET /api/health` - Health check
 
