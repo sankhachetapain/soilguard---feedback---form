@@ -220,6 +220,29 @@ Language: ${data.lang}
       }
     });
 
+    // Send to SheetDB
+    try {
+      await fetch("https://sheetdb.io/api/v1/jc0qcjv75l2k5", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          data: [
+            {
+              name: data.name,
+              location: data.location,
+              rating: JSON.stringify(data.ratings || {}),
+              feedback: data.suggestions,
+              timestamp: new Date().toLocaleString()
+            }
+          ]
+        })
+      });
+    } catch (sheetErr) {
+      console.warn('SheetDB send warning:', sheetErr.message);
+    }
+
     res.json({
       success: true,
       message: 'Feedback stored and (attempted) emailed successfully',

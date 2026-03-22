@@ -35,6 +35,9 @@ A feedback collection form for SoilGuard products with backend email integration
 - User information collection (name, role, location)
 - Product-specific ratings and satisfaction surveys
 - Automatic email notifications to Gmail
+- Persistent storage in SQLite database
+- Secure API access with JWT authentication
+- Data export to Google Sheets via SheetDB API
 - Responsive design
 
 ## API
