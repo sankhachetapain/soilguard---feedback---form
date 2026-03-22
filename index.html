@@ -1289,6 +1289,9 @@ function submitFeedback() {
     const label = ratingHints[k] ? k.replace(/([A-Z])/g,' $1').trim() : k;
     return `<div class="summary-row"><span class="sk">${label}</span><span class="sv">${starsText(ratings[k])}</span></div>`;
   }).join('');
+
+  const feedbackLink = (window.SOILGUARD_API || 'http://localhost:5000') + '/api/feedbacks';
+
   document.getElementById('summaryBox').innerHTML=`
     <div style="font-size:13px;font-weight:600;color:var(--g800);margin-bottom:8px">📋 ${p.name} — Submission Summary</div>
     <div class="summary-row"><span class="sk">Name</span><span class="sv">${data.name||'—'}</span></div>
@@ -1296,7 +1299,8 @@ function submitFeedback() {
     <div class="summary-row"><span class="sk">Location</span><span class="sv">${data.location||'—'}</span></div>
     ${ratingRows}
     <div class="summary-row"><span class="sk">Satisfaction</span><span class="sv">${(data.satisfaction||'—').replace('_',' ')}</span></div>
-    <div class="summary-row"><span class="sk">Recommend</span><span class="sv">${recMap[rec.value]||rec.value}</span></div>`;
+    <div class="summary-row"><span class="sk">Recommend</span><span class="sv">${recMap[rec.value]||rec.value}</span></div>
+    <div class="summary-row"><span class="sk">Stored at</span><span class="sv"><a href="${feedbackLink}" target="_blank" rel="noopener">${feedbackLink}</a></span></div>`;
 
   window.scrollTo({top:0,behavior:'smooth'});
 }
