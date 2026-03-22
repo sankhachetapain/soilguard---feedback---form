@@ -220,9 +220,9 @@ Language: ${data.lang}
       }
     });
 
-    // Send to SheetDB
+    // Send to SheetDB (exact format)
     try {
-      await fetch("https://sheetdb.io/api/v1/jc0qcjv75l2k5", {
+      const sheetResponse = await fetch("https://sheetdb.io/api/v1/jc0qcjv75l2k5", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -232,13 +232,19 @@ Language: ${data.lang}
             {
               name: data.name,
               location: data.location,
-              rating: JSON.stringify(data.ratings || {}),
+              role: data.role,
+              product: data.productName,
+              rating: data.ratings ? Object.entries(data.ratings).map(([k, v]) => `${k}: ${v}`).join(", ") : "Not rated",
               feedback: data.suggestions,
+              recommendation: data.recommend,
               timestamp: new Date().toLocaleString()
             }
           ]
         })
       });
+      if (!sheetResponse.ok) {
+        console.warn('SheetDB response:', sheetResponse.status);
+      }
     } catch (sheetErr) {
       console.warn('SheetDB send warning:', sheetErr.message);
     }
@@ -311,9 +317,19 @@ app.get('/api/feedbacks', authenticate, (req, res) => {
   });
 });
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK' });
+// Get feedback from SheetDB
+app.get('/api/sheetdb-data', authenticate, async (req, res) => {
+  try {
+    const response = await fetch('https://sheetdb.io/api/v1/jc0qcjv75l2k5');
+    if (!response.ok) {
+      throw new Error(`SheetDB error: ${response.status}`);
+    }
+    const data = await response.json();
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error('SheetDB fetch error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch from SheetDB' });
+  }
 });
 
 app.listen(PORT, () => {
