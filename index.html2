@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Feedback Form</title>
+</head>
+<body>
+  <h2>Feedback Form</h2>
+
+  <form id="form">
+    <input name="name" placeholder="Name" required><br>
+    <input name="role" placeholder="Role"><br>
+    <input name="location" placeholder="Location"><br>
+    <input name="product" placeholder="Product"><br>
+    <input name="kitEase" placeholder="Kit Ease"><br>
+    <input name="accuracy" placeholder="Accuracy"><br>
+    <input name="avgScore" placeholder="Avg Score"><br>
+    <input name="satisfaction" placeholder="Satisfaction"><br>
+    <input name="issue" placeholder="Issue"><br>
+    <input name="suggestion" placeholder="Suggestion"><br>
+    <input name="recommend" placeholder="Recommend"><br>
+    <input name="aiSentiment" placeholder="AI Sentiment"><br>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <script>
+    const scriptURL = "YOUR_GOOGLE_SCRIPT_URL";
+
+    document.getElementById("form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const obj = Object.fromEntries(formData.entries());
+
+      const res = await fetch(scriptURL, {
+        method: "POST",
+        body: JSON.stringify(obj)
+      });
+
+      alert("Submitted Successfully!");
+      e.target.reset();
+    });
+  </script>
+</body>
+</html>
