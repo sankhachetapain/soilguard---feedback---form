@@ -1250,13 +1250,13 @@ function toggleVoice() {
 /* ────────────────────────────────────────────────────────────
    SUBMIT
 ──────────────────────────────────────────────────────────── */
-function submitFeedback() {
+async function submitFeedback() {
   const rec=document.querySelector('input[name="recommend"]:checked');
   if(!rec){ document.getElementById('fRec').classList.add('has-error'); return; }
   document.getElementById('fRec').classList.remove('has-error');
 
   const p = PRODUCTS[currentProduct];
-  const data = {
+  const form = {
     product:      currentProduct,
     productName:  p.name,
     name:         document.getElementById('uName').value,
@@ -1270,11 +1270,19 @@ function submitFeedback() {
     timestamp:    new Date().toISOString(),
   };
 
-  const API_URL = window.SOILGUARD_API || 'http://localhost:5000';
-  fetch(API_URL+'/api/feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
-    .then(r=>r.json()).then(j=>console.log('✅',j)).catch(e=>console.warn('⚠️',e.message));
+  await fetch("https://script.google.com/macros/s/AKfycbzq1JGSmI7jFjNK_6sOPkq04ntpaJvmR9RVL7-3M1ZgitZ5jAucBTlJd6zBiSCG3EhL6g/exec", {
+    method: "POST",
+    body: JSON.stringify(form),
+  });
 
-  console.log('📤 SoilGuard Feedback →', JSON.stringify(data,null,2));
+  alert("Feedback saved to dataset 🌱");
+
+  console.log('📤 SoilGuard Feedback →', JSON.stringify(form,null,2));
+
+  // Show success
+  document.getElementById('step'+TOTAL_STEPS).classList.remove('visible');
+  document.getElementById('progWrap').style.display='none';
+  document.getElementById('navRow').innerHTML=''
 
   // Show success
   document.getElementById('step'+TOTAL_STEPS).classList.remove('visible');
