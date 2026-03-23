@@ -24,22 +24,28 @@
   </form>
 
   <script>
-    const scriptURL = "YOUR_GOOGLE_SCRIPT_URL";
+  const scriptURL = "https://script.google.com/macros/s/AKfycbwXPXclkDKp1A4cE5Mcd9tL2ygbVy6t9SMvFv-ggZYRbH3oLQa6vbE458CUSholFm0txw/exec";
 
-    document.getElementById("form").addEventListener("submit", async (e) => {
-      e.preventDefault();
+  document.getElementById("form").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      const formData = new FormData(e.target);
-      const obj = Object.fromEntries(formData.entries());
+    const formData = new FormData(e.target);
+    const obj = Object.fromEntries(formData.entries());
 
-      const res = await fetch(scriptURL, {
-        method: "POST",
-        body: JSON.stringify(obj)
-      });
+    console.log(obj); // 🔍 DEBUG: see data in browser console
 
-      alert("Submitted Successfully!");
-      e.target.reset();
+    const res = await fetch(scriptURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(obj)
     });
-  </script>
-</body>
-</html>
+
+    const text = await res.text();
+    console.log(text); // 🔍 DEBUG response
+
+    alert("Submitted Successfully!");
+    e.target.reset();
+  });
+</script>
